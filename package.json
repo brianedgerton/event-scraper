@@ -1,0 +1,30 @@
+{
+  "name": "event-scraper",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "LeanKit",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^0.9.0",
+    "commander": "^2.7.1",
+    "fs-extra": "^0.16.5",
+    "lodash": "^3.6.0",
+    "riaktive": "0.1.0-10",
+    "tar.gz": "^0.1.1",
+    "when": "^3.7.2"
+  },
+  "devDependencies": {
+    "biggulp": "0.0.2",
+    "chai": "^2.2.0",
+    "chai-as-promised": "^4.3.2",
+    "gulp": "^3.8.11",
+    "proxyquire": "^1.4.0",
+    "sinon": "^1.14.1",
+    "sinon-as-promised": "^2.0.3",
+    "sinon-chai": "^2.7.0"
+  }
+}
