@@ -1,5 +1,4 @@
 var util = require( "util" );
-var path = require( "path" );
 var _ = require( "lodash" );
 var when = require( "when" );
 var async = require( "async" );

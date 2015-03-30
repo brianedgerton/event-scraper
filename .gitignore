@@ -1,7 +1,6 @@
 .DS_Store
 *.suo
 *.csproj.user
-bin
 obj
 *.pdb
 _ReSharper*
