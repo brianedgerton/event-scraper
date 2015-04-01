@@ -7,7 +7,7 @@ program
 	.usage( "[options]" )
 	.option( "-H, --host [host]", "Riak Host (default: localhost)" )
 	.option( "-p, --port [port]", "Riak Port" )
-	.option( "-f, --file [keyFileName]", "Path to archive file from which to import" )
+	.option( "-f, --file [fileName]", "Path to archive file from which to import" )
 	.option( "-a, --actorBucket [actorBucket]", "Bucket in which to import actors")
 	.option( "-e, --eventBucket [eventBucket]", "Bucket in which to import the actors' events" )
 	.parse( process.argv );
@@ -38,7 +38,7 @@ if ( errors.length ) {
 var scraper = require( "../src/index.js" );
 
 var onSuccess = function( result ) {
-	console.log( "Export completed successfully" );
+	console.log( "Import completed successfully" );
 	process.exit();
 };
 
