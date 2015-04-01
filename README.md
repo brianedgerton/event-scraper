@@ -32,7 +32,7 @@ Options:
 To import:
 
 ```sh
-$ ./scraper export --actorBucket imported_actors --eventBucket imported_events --file export.tar.gz
+$ ./scraper import --actorBucket imported_actors --eventBucket imported_events --file export.tar.gz
 ```
 
 This will extract the events exported by the above command and put them into the specified buckets while preserving indexes.
