@@ -3,15 +3,7 @@ var _ = require( "lodash" );
 var when = require( "when" );
 var async = require( "async" );
 var CONCURRENCY = 20;
-
-function normalize( _docs ) {
-	var docs = _.isArray( _docs ) ? _docs : [ _docs ];
-
-	return docs.map( function( d ) {
-		delete d.vclock;
-		return d;
-	} );
-}
+var document = require( "./document" );
 
 function fetch( riak, config, keys ) {
 	return when.promise( function( resolve, reject ) {
@@ -24,7 +16,8 @@ function fetch( riak, config, keys ) {
 			return function( callback ) {
 				bucket.get( key )
 					.then( function( docs ) {
-						callback( null, normalize( docs ) );
+						//callback( null, normalize( docs ) );
+						callback( null, docs );
 					}, function( err ) {
 						callback( err );
 					} );
@@ -43,6 +36,41 @@ function fetch( riak, config, keys ) {
 	} );
 }
 
+
+
+
+function write( riak, config, fileResults ) {
+	return when.promise( function( resolve, reject ) {
+		var actors = fileResults.actors;
+
+		var bucketName = config.actorBucket;
+		var bucket = riak.bucket( bucketName );
+		var tasks = actors.map( function( _docs ) {
+			return function( callback ) {
+				var docs = _.isArray( _docs ) ? _docs : [ _docs ];
+				var puts = docs.map( function( d ) {
+					var doc = document.prepare( d );
+					return bucket.put( doc.data, doc.indexes );
+				} );
+
+				when.all( puts ).then( function() {
+					callback();
+				} );
+			};
+		} );
+
+		async.parallelLimit( tasks, CONCURRENCY, function( err, results ) {
+			if ( err ) {
+				return reject( err );
+			}
+
+			resolve();
+		} );
+
+	} );
+}
+
 module.exports = {
-	fetch: fetch
+	fetch: fetch,
+	write: write
 };

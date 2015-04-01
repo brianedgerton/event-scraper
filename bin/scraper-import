@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+var program = require( "commander" );
+
+program
+	.version( "0.0.1" )
+	.usage( "[options]" )
+	.option( "-H, --host [host]", "Riak Host (default: localhost)" )
+	.option( "-p, --port [port]", "Riak Port" )
+	.option( "-f, --file [keyFileName]", "Path to archive file from which to import" )
+	.option( "-a, --actorBucket [actorBucket]", "Bucket in which to import actors")
+	.option( "-e, --eventBucket [eventBucket]", "Bucket in which to import the actors' events" )
+	.parse( process.argv );
+
+var config = {
+	host: program.host || "localhost",
+	port: program.port || undefined,
+	file: program.file,
+	dir: process.cwd(),
+	actorBucket: program.actorBucket,
+	eventBucket: program.eventBucket
+};
+
+var required = [ "file", "actorBucket", "eventBucket" ];
+
+var errors = [];
+required.forEach( function( f ) {
+	if ( !config[f] ) {
+		errors.push( "Please enter a value for " + f );
+	}
+});
+
+if ( errors.length ) {
+	console.error( errors.join( "\n" ) );
+	process.exit( 1 );
+}
+
+var scraper = require( "../src/index.js" );
+
+var onSuccess = function( result ) {
+	console.log( "Export completed successfully" );
+	process.exit();
+};
+
+var onFail = function( err ) {
+	console.error( err.toString() );
+	process.exit( 1 );
+};
+
+return scraper.import( config ).then( onSuccess, onFail );

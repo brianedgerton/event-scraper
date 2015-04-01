@@ -4,52 +4,6 @@ var program = require( "commander" );
 
 program
 	.version( "0.0.1" )
-	.usage( "[options]" )
-	.option( "-H, --host [host]", "Riak Host (default: localhost)" )
-	.option( "-p, --port [port]", "Riak Port (default: 8089)" )
-	.option( "-d, --dir [directoryName]", "Directory in which to place exported files (default: ./export)")
-	.option( "-k, --keyFile [keyFileName]", "Path to file from which keys can be read" )
-	.option( "-a, --actorBucket [actorBucket]", "Bucket which contains actors")
-	.option( "-e, --eventBucket [eventBucket]", "Bucket which contains the actors' events" )
+	.command( "export", "Export events from riak" )
+	.command( "import", "Import events back into riak" )
 	.parse( process.argv );
-
-
-var path = require( "path" );
-var cwd = process.cwd();
-
-var config = {
-	host: program.host || "localhost",
-	port: program.port || undefined,
-	dir: path.resolve( cwd, (program.dir || "./export") ),
-	keyFile: program.keyFile,
-	actorBucket: program.actorBucket,
-	eventBucket: program.eventBucket
-};
-
-var required = [ "keyFile", "actorBucket", "eventBucket" ];
-
-var errors = [];
-required.forEach( function( f ) {
-	if ( !config[f] ) {
-		errors.push( "Please enter a value for " + f );
-	}
-});
-
-if ( errors.length ) {
-	console.error( errors.join( "\n" ) );
-	process.exit( 1 );
-}
-
-var scraper = require( "../src/index.js" );
-
-var onSuccess = function( result ) {
-	console.log( "Export completed successfully" );
-	process.exit();
-};
-
-var onFail = function( err ) {
-	console.error( err.toString() );
-	process.exit( 1 );
-};
-
-return scraper.export( config ).then( onSuccess, onFail );

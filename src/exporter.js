@@ -1,36 +1,64 @@
-var lift = require( "when/node" ).lift;
-var path = require( "path" );
-var fs = require( "fs-extra" );
-var util = require( "util" );
+/*
+	1. Read keys from source
+	2. Retrieve actor records by key
+		-> Save to compressed file in actors folder
+	3. Retrieve event records by actorId
+		-> Save to compressed file in events folder
+*/
+var _ = require( "lodash" );
+var when = require( "when" );
+var pipeline = require( "when/pipeline" );
+var riaktive = require( "riaktive" );
+var preflight = require( "./preflight" );
+var keys = require( "./keys" );
+var actors = require( "./actors" );
+var events = require( "./events" );
+var file = require( "./file" );
+var archiver = require( "./archiver" );
 
-var writeFile = lift( fs.writeFile );
+function exportRecords( riak, config, keys ) {
 
-function saveToFile( filePath, data ) {
-	var contents = JSON.stringify( data, null, 2 );
-	return writeFile( filePath, contents );
+	var processActors = function( keys ) {
+		var save = _.partial( file.saveActors, config );
+		return pipeline( [
+			actors.fetch,
+			save
+		], riak, config, keys );
+	};
+
+	var processEvents = function( keys ) {
+		var save = _.partial( file.saveEvents, config );
+		return pipeline( [
+			events.fetch,
+			save
+		], riak, config, keys );
+	};
+
+	return when.all( [
+		processActors( keys ),
+		processEvents( keys )
+	] );
 }
 
-function saveActors( config, data ) {
-	var filename = path.resolve( config.dir, "actors.json" );
-	util.log( "Saving %s actor records to %s.", data.actors.length, filename );
-	return saveToFile( filename, data );
+
+function runExport( config ) {
+
+	var riak = riaktive.connect( {
+		host: config.host,
+		port: config.port
+	} );
+
+	var checker = _.partial( preflight.check, config );
+	var keyReader = _.partial( keys.read, config.keyFile );
+	var exporter = _.partial( exportRecords, riak, config );
+	var compressor = _.partial( archiver.compress, config.dir );
+
+	return pipeline( [
+		checker,
+		keyReader,
+		exporter,
+		compressor
+	] );
 }
 
-function saveEvents( config, data ) {
-	var filename = path.resolve( config.dir, "events.json" );
-
-	var count = data.events.reduce( function( memo, e ) {
-		memo += e.events.length;
-		return memo;
-	}, 0 );
-
-	util.log( "Saving %s event records to %s.", count, filename );
-
-	return saveToFile( filename, data );
-}
-
-module.exports = {
-	saveToFile: saveToFile,
-	saveActors: saveActors,
-	saveEvents: saveEvents
-};
+module.exports = runExport;
