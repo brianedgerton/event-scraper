@@ -13,6 +13,7 @@ function fetch( riak, config, keys ) {
 
 		var bucket = riak.bucket( bucketName );
 
+		var count = 0;
 		var tasks = keys.map( function( key ) {
 			return function( callback ) {
 				var records = [];
@@ -20,6 +21,7 @@ function fetch( riak, config, keys ) {
 					.progress( function( record ) {
 						//records.push( normalize( record ) );
 						records.push( record );
+						count++;
 					} )
 					.then( function() {
 						if ( records.length ) {
@@ -34,6 +36,9 @@ function fetch( riak, config, keys ) {
 			if ( err ) {
 				return reject( err );
 			}
+
+			util.log( "Exported %s records.", count );
+
 			resolve( {
 				keys: keys,
 				events: _.compact( results )
@@ -47,17 +52,21 @@ function write( riak, config, fileResults ) {
 	return when.promise( function( resolve, reject ) {
 		var events = fileResults.events;
 
+		var count = 0;
+
 		var bucketName = config.eventBucket;
 		var bucket = riak.bucket( bucketName );
 		var tasks = events.reduce( function( memo, actor ) {
 			var events = actor.events;
 			var subtasks = events.map( function( _docs ) {
 				return function( callback ) {
-					var docs = _.isArray( _docs ) ? _docs : [ _docs ];
+					var docs = document.areSiblings( _docs ) ? _docs : [ _docs ];
 					var puts = docs.map( function( d ) {
 						var doc = document.prepare( d );
 						return bucket.put( doc.data, doc.indexes );
 					} );
+
+					count++;
 
 					when.all( puts ).then( function() {
 						callback();
@@ -76,6 +85,8 @@ function write( riak, config, fileResults ) {
 			if ( err ) {
 				return reject( err );
 			}
+
+			util.log( "Imported %s records.", count );
 
 			resolve();
 		} );

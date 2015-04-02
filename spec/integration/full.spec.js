@@ -4,11 +4,11 @@ var _ = require( "lodash" );
 var when = require( "when" );
 var path = require( "path" );
 var riaktive = require( "riaktive" );
-var actors = require( "../../src/actors" );
-var events = require( "../../src/events" );
-var file = require( "../../src/file" );
+var actors = require( "../../src/lib/actors" );
+var events = require( "../../src/lib/events" );
+var file = require( "../../src/lib/file" );
 var scraper = require( "../../src/index" );
-var document = require( "../../src/document" );
+var document = require( "../../src/lib/document" );
 var utils = require( "../utils" );
 var riak;
 

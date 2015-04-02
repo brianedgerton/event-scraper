@@ -1,13 +1,19 @@
-# event-scraper
+# event-util
 
 This is a utility for exporting actors and their related events out of Riak. It will also import a generated archive of actors and events back into Riak.
 
 ## Usage
 
+To install:
+
+```sh
+$ npm install @lk/event-util -g
+```
+
 To export:
 
 ```sh
-$ ./scraper export --actorBucket actor_stuff --eventBucket event_stuff --keyFile myKeys.txt
+$ evutil export --actorBucket actor_stuff --eventBucket event_stuff --keyFile myKeys.txt
 ```
 
 This `keyFile` should be a text file containing 1 key per line. These keys should represent the actors in which you are interested.
@@ -15,7 +21,7 @@ This `keyFile` should be a text file containing 1 key per line. These keys shoul
 This command with produce an `export.tar.gz` file that contains the data from those buckets.
 
 ```sh
-Usage: scraper-export [options]
+Usage: evutil-export [options]
 
 Options:
 
@@ -32,13 +38,13 @@ Options:
 To import:
 
 ```sh
-$ ./scraper import --actorBucket imported_actors --eventBucket imported_events --file export.tar.gz
+$ evutil import --actorBucket imported_actors --eventBucket imported_events --file export.tar.gz
 ```
 
 This will extract the events exported by the above command and put them into the specified buckets while preserving indexes.
 
 ```sh
-Usage: scraper-import [options]
+Usage: evutil-import [options]
 
 Options:
 

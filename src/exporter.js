@@ -7,14 +7,15 @@
 */
 var _ = require( "lodash" );
 var when = require( "when" );
+var util = require( "util" );
 var pipeline = require( "when/pipeline" );
 var riaktive = require( "riaktive" );
-var preflight = require( "./preflight" );
-var keys = require( "./keys" );
-var actors = require( "./actors" );
-var events = require( "./events" );
-var file = require( "./file" );
-var archiver = require( "./archiver" );
+var preflight = require( "./lib/preflight" );
+var keys = require( "./lib/keys" );
+var actors = require( "./lib/actors" );
+var events = require( "./lib/events" );
+var file = require( "./lib/file" );
+var archiver = require( "./lib/archiver" );
 
 function exportRecords( riak, config, keys ) {
 
@@ -52,6 +53,13 @@ function runExport( config ) {
 	var keyReader = _.partial( keys.read, config.keyFile );
 	var exporter = _.partial( exportRecords, riak, config );
 	var compressor = _.partial( archiver.compress, config.dir );
+
+	util.log( "Starting export." );
+	util.log( "Config options: " );
+
+	_.forOwn( config, function( val, key ) {
+		util.log( " - %s: %s", key, val );
+	} );
 
 	return pipeline( [
 		checker,

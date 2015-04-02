@@ -47,7 +47,7 @@ function write( riak, config, fileResults ) {
 		var bucket = riak.bucket( bucketName );
 		var tasks = actors.map( function( _docs ) {
 			return function( callback ) {
-				var docs = _.isArray( _docs ) ? _docs : [ _docs ];
+				var docs = document.areSiblings( _docs ) ? _docs : [ _docs ];
 				var puts = docs.map( function( d ) {
 					var doc = document.prepare( d );
 					return bucket.put( doc.data, doc.indexes );

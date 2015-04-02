@@ -55,7 +55,18 @@ function prepare( rawDoc ) {
 	return { data: doc, indexes: indexes };
 }
 
+function areSiblings( docs ) {
+	if ( !_.isArray( docs ) ) {
+		return false;
+	}
+
+	var vclocks = _.compact( _.pluck( docs, "vclock" ) );
+
+	return vclocks.length === docs.length;
+}
+
 module.exports = {
 	deserialize: deserialize,
-	prepare: prepare
+	prepare: prepare,
+	areSiblings: areSiblings
 };
